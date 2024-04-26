@@ -129,10 +129,10 @@ class GUI:
         # lazy load guidance model
         if self.guidance_sd is None and self.enable_sd:
             if self.opt.mvdream:
-                print(f"[INFO] loading MVDream...")
+                print(f"[INFO] loading Multi-View Diffusion...")
                 from guidance.mvdream_utils import MVDream
                 self.guidance_sd = MVDream(self.device)
-                print(f"[INFO] loaded MVDream!")
+                print(f"[INFO] loaded Multi-View Diffusion!")
             else:
                 print(f"[INFO] loading SD...")
                 from guidance.sd_utils import StableDiffusion
