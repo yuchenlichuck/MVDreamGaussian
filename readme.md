@@ -57,16 +57,10 @@ Please check `./configs/text_mv.yaml` for more options.
 
 
 
-```bash
-# run all image samples (*_rgba.png) in ./data
-python scripts/runall.py --dir ./data --gpu 0
-
 # run all text samples (hardcoded in runall_sd.py)
 python scripts/runall_sd.py --gpu 0
 
-# export all ./logs/*.obj to mp4 in ./videos
-python scripts/convert_obj_to_video.py --dir ./logs
-```
+
 
 ## Acknowledgement
 
