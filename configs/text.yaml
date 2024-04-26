@@ -1,4 +1,4 @@
-### Input
+### Input Dream Gaussian baseline
 # input rgba image path (default to None, can be load in GUI too)
 input: 
 # input text prompt (default to None, can be input in GUI too)

@@ -2,11 +2,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-from mvdream.camera_utils import get_camera, convert_opengl_to_blender, normalize_camera
+from mvdream.camera_utils import get_camera, normalize_camera
 from mvdream.model_zoo import build_model
 from mvdream.ldm.models.diffusion.ddim import DDIMSampler
-
 from diffusers import DDIMScheduler
 
 class MVDream(nn.Module):
@@ -18,7 +16,6 @@ class MVDream(nn.Module):
         t_range=[0.02, 0.98],
     ):
         super().__init__()
-
         self.device = device
         self.model_name = model_name
         self.ckpt_path = ckpt_path
@@ -29,11 +26,9 @@ class MVDream(nn.Module):
             p.requires_grad_(False)
 
         self.dtype = torch.float32
-
-        self.num_train_timesteps = 1000
+        self.num_train_timesteps = 2000
         self.min_step = int(self.num_train_timesteps * t_range[0])
         self.max_step = int(self.num_train_timesteps * t_range[1])
-
         self.embeddings = None
 
         self.scheduler = DDIMScheduler.from_pretrained(
@@ -108,48 +103,13 @@ class MVDream(nn.Module):
             latents = self.encode_imgs(pred_rgb_256)
 
         if step_ratio is not None:
-            # dreamtime-like
-            # t = self.max_step - (self.max_step - self.min_step) * np.sqrt(step_ratio)
             t = np.round((1 - step_ratio) * self.num_train_timesteps).clip(self.min_step, self.max_step)
             t = torch.full((batch_size,), t, dtype=torch.long, device=self.device)
         else:
             t = torch.randint(self.min_step, self.max_step + 1, (batch_size,), dtype=torch.long, device=self.device)
-
-        # camera = convert_opengl_to_blender(camera)
-        # flip_yz = torch.tensor([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]]).unsqueeze(0)
-        # camera = torch.matmul(flip_yz.to(camera), camera)
         camera = camera[:, [0, 2, 1, 3]] # to blender convention (flip y & z axis)
         camera[:, 1] *= -1
         camera = normalize_camera(camera).view(batch_size, 16)
-
-        ###############
-        # sampler = DDIMSampler(self.model)
-        # shape = [4, 32, 32]
-        # c_ = {"context": self.embeddings[4:]}
-        # uc_ = {"context": self.embeddings[:4]}
-
-        # # print(camera)
-
-        # # camera = get_camera(4, elevation=0, azimuth_start=0)
-        # # camera = camera.repeat(batch_size // 4, 1).to(self.device)
-
-        # # print(camera)
-
-        # c_["camera"] = uc_["camera"] = camera
-        # c_["num_frames"] = uc_["num_frames"] = 4
-
-        # latents_, _ = sampler.sample(S=30, conditioning=c_,
-        #                                 batch_size=batch_size, shape=shape,
-        #                                 verbose=False, 
-        #                                 unconditional_guidance_scale=guidance_scale,
-        #                                 unconditional_conditioning=uc_,
-        #                                 eta=0, x_T=None)
-
-        # # Img latents -> imgs
-        # imgs = self.decode_latents(latents_)  # [4, 3, 256, 256]
-        # import kiui
-        # kiui.vis.plot_image(imgs)
-        ###############
 
         camera = camera.repeat(2, 1)
         context = {"context": self.embeddings, "camera": camera, "num_frames": 4}
@@ -174,9 +134,6 @@ class MVDream(nn.Module):
 
         grad = (noise_pred - noise)
         grad = torch.nan_to_num(grad)
-
-        # seems important to avoid NaN...
-        # grad = grad.clamp(-1, 1)
 
         target = (latents - grad).detach()
         loss = 0.5 * F.mse_loss(latents.float(), target, reduction='sum') / latents.shape[0]
@@ -243,29 +200,3 @@ class MVDream(nn.Module):
 
         return imgs
 
-
-if __name__ == "__main__":
-    import argparse
-    import matplotlib.pyplot as plt
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("prompt", type=str)
-    parser.add_argument("--negative", default="", type=str)
-    parser.add_argument("--steps", type=int, default=30)
-    opt = parser.parse_args()
-
-    device = torch.device("cuda")
-
-    sd = MVDream(device)
-
-    while True:
-        imgs = sd.prompt_to_img(opt.prompt, opt.negative, num_inference_steps=opt.steps)
-
-        grid = np.concatenate([
-            np.concatenate([imgs[0], imgs[1]], axis=1),
-            np.concatenate([imgs[2], imgs[3]], axis=1),
-        ], axis=0)
-
-        # visualize image
-        plt.imshow(grid)
-        plt.show()

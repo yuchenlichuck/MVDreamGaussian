@@ -49,12 +49,12 @@ W: 800
 ### Gaussian splatting
 num_pts: 5000
 sh_degree: 0
-position_lr_init: 0.001
-position_lr_final: 0.00002
+position_lr_init: 0.002
+position_lr_final: 0.00004
 position_lr_delay_mult: 0.02
-position_lr_max_steps: 300
-feature_lr: 0.01
-opacity_lr: 0.05
+position_lr_max_steps: 400
+feature_lr: 0.02
+opacity_lr: 0.06
 scaling_lr: 0.005
 rotation_lr: 0.005
 percent_dense: 0.1
