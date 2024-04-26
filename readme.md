@@ -30,11 +30,6 @@ Tested on:
 
 ## Usage
 
-### evaluation of CLIP-similarity
-python -m kiui.cli.clip_sim data/name_rgba.png logs/name.obj
-```
-
-Please check `./configs/image.yaml` for more options.
 
 Text-to-3D DreamGaussian (Baseline):
 
