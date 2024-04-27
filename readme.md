@@ -76,7 +76,25 @@ python scripts/runall_mvdream_hard.py --gpu 1
 
 open the jupyter notebook of `clip_similarity.ipynb`
 
+result is here:
+
+![clip similarity](photo/clip.png)
+
+
+# Calculate Type-Token Ratio
+
+
+open the jupyter notebook of `calculate_ttr.ipynb`
+
+result is here:
+
+![clip similarity](photo/ttr.png)
+
+
+
 ## Acknowledgement
+
+
 
 This work is built on many amazing research works and open-source projects, thanks a lot:
 
