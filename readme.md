@@ -57,10 +57,24 @@ Please check `./configs/text_mv.yaml` for more options.
 
 
 
-# run all text samples (hardcoded in runall_sd.py)
-python scripts/runall_sd.py --gpu 0
+## run all text samples (hardcoded in runall_mvdream.py)
+python scripts/runall_mvdream.py --gpu 0
+
+# Ablation Study
 
 
+## run all text samples for easy text prompts 
+python scripts/runall_mvdream_easy.py --gpu 0
+
+
+
+## run all text samples for hard text prompts
+python scripts/runall_mvdream_hard.py --gpu 1
+
+
+# Evaluation of Clip Similarity
+
+open the jupyter notebook of `clip_similarity.ipynb`
 
 ## Acknowledgement
 
